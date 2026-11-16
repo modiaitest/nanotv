@@ -27,7 +27,6 @@ else
     git push -u origin main
 fi
 
-# Enable GitHub Pages on main branch so PRIVACY_POLICY is hosted over HTTPS for Google Play
 "$GH_BIN" api -X POST "repos/${GH_USER}/nanotv/pages" -f "source[branch]=main" -f "source[path]=/" >/dev/null 2>&1 || true
 PRIVACY_URL="https://${GH_USER}.github.io/nanotv/PRIVACY_POLICY.html"
 echo "✅ GitHub Repo: https://github.com/${GH_USER}/nanotv"
@@ -38,11 +37,19 @@ echo ""
 echo "👉 Step 2/3: Deploying NanoTV Cloudflare Worker Edge Proxy..."
 cd "${SCRIPT_DIR}/backend"
 
-if ! "$NPX_BIN" --yes wrangler whoami >/dev/null 2>&1; then
+WHOAMI_OUT=$("$NPX_BIN" --yes wrangler whoami 2>&1 || true)
+if echo "$WHOAMI_OUT" | grep -Eqi "not authenticated|login"; then
+    echo "Opening Cloudflare login in your browser..."
     "$NPX_BIN" --yes wrangler login
 fi
 
-# Read YOUTUBE_API_KEY from parent personal local.properties if present, else prompt securely
+# Deploy Worker interactively first (allows choosing a free *.workers.dev subdomain if first time)
+rm -f /tmp/nanotv_wrangler_deploy.log
+/usr/bin/script -q /tmp/nanotv_wrangler_deploy.log "$NPX_BIN" --yes wrangler deploy
+
+WORKER_URL=$(grep -Eo 'https://[a-zA-Z0-9._-]+\.workers\.dev' /tmp/nanotv_wrangler_deploy.log | head -n 1 || true)
+
+# Upload YOUTUBE_API_KEY secret after Worker exists
 PARENT_PROPS="${SCRIPT_DIR}/../local.properties"
 SAVED_YT_KEY=""
 if [ -f "$PARENT_PROPS" ]; then
@@ -54,10 +61,6 @@ if [ -n "$SAVED_YT_KEY" ]; then
 else
     "$NPX_BIN" --yes wrangler secret put YOUTUBE_API_KEY
 fi
-
-DEPLOY_OUT=$("$NPX_BIN" --yes wrangler deploy 2>&1)
-echo "$DEPLOY_OUT"
-WORKER_URL=$(echo "$DEPLOY_OUT" | grep -Eo 'https://[a-zA-Z0-9._-]+\.workers\.dev' | head -n 1)
 
 cd "$SCRIPT_DIR"
 if [ -n "$WORKER_URL" ]; then
@@ -73,6 +76,12 @@ fi
 echo ""
 echo "👉 Step 3/3: Building signed Google Play App Bundle (.aab) wired to your live backend..."
 "${SCRIPT_DIR}/gradlew" bundleRelease assembleDebug
+
+# Copy refreshed AAB to Antigravity browser upload staging if directory exists
+UPLOAD_STAGE="/Users/abhishekmodi/.gemini/antigravity/brain/84e70a8f-dfb6-4ea4-a795-f0d8da2999e6/browser_sandbox/uploads"
+if [ -d "$UPLOAD_STAGE" ]; then
+    cp "${SCRIPT_DIR}/app/build/outputs/bundle/release/app-release.aab" "${UPLOAD_STAGE}/app-release.aab"
+fi
 
 echo ""
 echo "========================================================"
