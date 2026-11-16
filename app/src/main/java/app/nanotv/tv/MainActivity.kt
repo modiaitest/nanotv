@@ -88,102 +88,106 @@ fun NanoTvRootApp(vm: MainViewModel) {
             .fillMaxSize()
             .background(NanoPalette.MidnightBg)
     ) {
-        if (playbackSession != null) {
-            NanoTvPlayerScreen(
-                session = playbackSession!!,
-                allVideos = homeUiState.allVideos,
-                autoplayEnabled = settingsState.autoplayEnabled,
-                onSelectQueueVideo = vm::playVideoInCurrentQueue,
-                onToggleLike = vm::toggleLike,
-                onToggleWatchLater = vm::toggleWatchLater,
-                onSaveProgress = vm::saveWatchProgress,
-                onMarkFinished = vm::markVideoFinished,
-                onUnplayableVideo = vm::handleUnplayableVideo,
-                onExitPlayer = vm::closePlayer
-            )
-        } else {
-            Row(modifier = Modifier.fillMaxSize()) {
-                SidebarNavRail(
-                    familySpaceName = settingsState.familyProfileName,
-                    isParentUnlocked = isParentUnlocked,
-                    activeSection = activeSection,
-                    onSelectSection = vm::selectSection
+        when {
+            playbackSession != null -> {
+                NanoTvPlayerScreen(
+                    session = playbackSession!!,
+                    allVideos = homeUiState.allVideos,
+                    autoplayEnabled = settingsState.autoplayEnabled,
+                    onSelectQueueVideo = vm::playVideoInCurrentQueue,
+                    onToggleLike = vm::toggleLike,
+                    onToggleWatchLater = vm::toggleWatchLater,
+                    onSaveProgress = vm::saveWatchProgress,
+                    onMarkFinished = vm::markVideoFinished,
+                    onUnplayableVideo = vm::handleUnplayableVideo,
+                    onExitPlayer = vm::closePlayer
                 )
-
-                Box(modifier = Modifier.weight(1f)) {
-                    when (activeSection) {
-                        NavSection.HOME -> HomeScreen(
-                            uiState = homeUiState,
-                            onSelectCategory = vm::selectCategory,
-                            onPlayVideo = vm::startPlayback,
-                            onOpenParentCurate = { vm.selectSection(NavSection.PARENT_CURATE) }
-                        )
-
-                        NavSection.SEARCH -> SearchScreen(
-                            query = searchQuery,
-                            results = searchResults,
-                            onQueryChange = vm::updateSearchQuery,
-                            onAppendChar = vm::appendSearchChar,
-                            onBackspace = vm::backspaceSearch,
-                            onClear = vm::clearSearch,
-                            onPlayVideo = vm::startPlayback
-                        )
-
-                        NavSection.CHANNELS -> ChannelsScreen(
-                            channels = channels,
-                            selectedChannelId = selectedChannelId,
-                            selectedChannelVideos = selectedChannelVideos,
-                            onSelectChannel = vm::openChannelDetail,
-                            onCloseChannelDetail = vm::closeChannelDetail,
-                            onPlayVideo = vm::startPlayback
-                        )
-
-                        NavSection.LIBRARY -> LibraryScreen(
-                            activeTab = activeLibraryTab,
-                            playlists = homeUiState.playlists,
-                            selectedPlaylistId = selectedPlaylistId,
-                            selectedPlaylistVideos = selectedPlaylistVideos,
-                            historyVideos = historyVideos,
-                            likedVideos = likedVideos,
-                            watchLaterVideos = watchLaterVideos,
-                            onSelectTab = vm::selectLibraryTab,
-                            onOpenPlaylist = vm::openPlaylistDetail,
-                            onClosePlaylist = vm::closePlaylistDetail,
-                            onPlayVideo = vm::startPlayback
-                        )
-
-                        NavSection.PARENT_CURATE -> AddVideosQrScreen(
-                            curatedSources = curatedSources,
-                            totalVideos = homeUiState.allVideos.size,
-                            isSyncing = homeUiState.isSyncing,
-                            onRefreshNow = vm::refreshCatalogNow,
-                            onLockParentSession = vm::lockParentSessionNow
-                        )
-
-                        NavSection.PARENT_SETTINGS -> SettingsScreen(
-                            settings = settingsState,
-                            isSyncing = homeUiState.isSyncing,
-                            playlistCount = homeUiState.playlists.size,
-                            videoCount = homeUiState.allVideos.size,
-                            syncMessage = homeUiState.syncBannerMessage,
-                            onOpenQrCurate = { vm.selectSection(NavSection.PARENT_CURATE) },
-                            onRefreshNow = vm::refreshCatalogNow,
-                            onToggleAutoplay = vm::setAutoplay,
-                            onClearHistory = vm::clearWatchHistory,
-                            onRestoreHidden = vm::restoreHiddenVideos,
-                            onChangePin = vm::updateParentPin,
-                            onLockParentSession = vm::lockParentSessionNow
-                        )
-                    }
-                }
             }
 
-            if (pendingPinTarget != null) {
+            pendingPinTarget != null -> {
                 ParentPinUnlockModal(
                     errorMessage = pinError,
                     onSubmitPin = vm::submitParentPin,
                     onCancel = vm::cancelPinPrompt
                 )
+            }
+
+            else -> {
+                Row(modifier = Modifier.fillMaxSize()) {
+                    SidebarNavRail(
+                        familySpaceName = settingsState.familyProfileName,
+                        isParentUnlocked = isParentUnlocked,
+                        activeSection = activeSection,
+                        onSelectSection = vm::selectSection
+                    )
+
+                    Box(modifier = Modifier.weight(1f)) {
+                        when (activeSection) {
+                            NavSection.HOME -> HomeScreen(
+                                uiState = homeUiState,
+                                onSelectCategory = vm::selectCategory,
+                                onPlayVideo = vm::startPlayback,
+                                onOpenParentCurate = { vm.selectSection(NavSection.PARENT_CURATE) }
+                            )
+
+                            NavSection.SEARCH -> SearchScreen(
+                                query = searchQuery,
+                                results = searchResults,
+                                onQueryChange = vm::updateSearchQuery,
+                                onAppendChar = vm::appendSearchChar,
+                                onBackspace = vm::backspaceSearch,
+                                onClear = vm::clearSearch,
+                                onPlayVideo = vm::startPlayback
+                            )
+
+                            NavSection.CHANNELS -> ChannelsScreen(
+                                channels = channels,
+                                selectedChannelId = selectedChannelId,
+                                selectedChannelVideos = selectedChannelVideos,
+                                onSelectChannel = vm::openChannelDetail,
+                                onCloseChannelDetail = vm::closeChannelDetail,
+                                onPlayVideo = vm::startPlayback
+                            )
+
+                            NavSection.LIBRARY -> LibraryScreen(
+                                activeTab = activeLibraryTab,
+                                playlists = homeUiState.playlists,
+                                selectedPlaylistId = selectedPlaylistId,
+                                selectedPlaylistVideos = selectedPlaylistVideos,
+                                historyVideos = historyVideos,
+                                likedVideos = likedVideos,
+                                watchLaterVideos = watchLaterVideos,
+                                onSelectTab = vm::selectLibraryTab,
+                                onOpenPlaylist = vm::openPlaylistDetail,
+                                onClosePlaylist = vm::closePlaylistDetail,
+                                onPlayVideo = vm::startPlayback
+                            )
+
+                            NavSection.PARENT_CURATE -> AddVideosQrScreen(
+                                curatedSources = curatedSources,
+                                totalVideos = homeUiState.allVideos.size,
+                                isSyncing = homeUiState.isSyncing,
+                                onRefreshNow = vm::refreshCatalogNow,
+                                onLockParentSession = vm::lockParentSessionNow
+                            )
+
+                            NavSection.PARENT_SETTINGS -> SettingsScreen(
+                                settings = settingsState,
+                                isSyncing = homeUiState.isSyncing,
+                                playlistCount = homeUiState.playlists.size,
+                                videoCount = homeUiState.allVideos.size,
+                                syncMessage = homeUiState.syncBannerMessage,
+                                onOpenQrCurate = { vm.selectSection(NavSection.PARENT_CURATE) },
+                                onRefreshNow = vm::refreshCatalogNow,
+                                onToggleAutoplay = vm::setAutoplay,
+                                onClearHistory = vm::clearWatchHistory,
+                                onRestoreHidden = vm::restoreHiddenVideos,
+                                onChangePin = vm::updateParentPin,
+                                onLockParentSession = vm::lockParentSessionNow
+                            )
+                        }
+                    }
+                }
             }
         }
     }
