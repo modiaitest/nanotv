@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+    <!-- Deep midnight slate background -->
+    <path
+        android:fillColor="#0E1726"
+        android:pathData="M0,0h320v180h-320z" />
+    <!-- Subtle geometric orbit accents -->
+    <path
+        android:fillColor="#162642"
+        android:pathData="M265,35m-68,0a68,68 0,1 1,136 0a68,68 0,1 1,-136 0" />
+    <path
+        android:fillColor="#1B224A"
+        android:pathData="M55,155m-55,0a55,55 0,1 1,110 0a55,55 0,1 1,-110 0" />
+    <!-- Original NanoTV Hexagon/Circle Emblem + Geometric 'N' -->
+    <path
+        android:fillColor="#182C4E"
+        android:pathData="M112,90m-44,0a44,44 0,1 1,88 0a44,44 0,1 1,-88 0" />
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M92,112V68h11l19,25V68h11v44h-11L103,87v25z" />
+    <!-- Neon mint & violet orbit dots -->
+    <path
+        android:fillColor="#00E676"
+        android:pathData="M192,76h64v8h-64z" />
+    <path
+        android:fillColor="#7C4DFF"
+        android:pathData="M192,94h44v8h-44z" />
+    <path
+        android:fillColor="#FFB300"
+        android:pathData="M174,80m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0" />
+</vector>

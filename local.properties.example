@@ -1,0 +1,6 @@
+# Copy to local.properties (gitignored).
+# IMPORTANT: Never place a YouTube API Key in the Android app! Put your key in backend/ Cloudflare Worker secrets.
+sdk.dir=/path/to/Android/sdk
+
+# Public URL of your deployed backend/ Cloudflare Worker proxy (e.g. https://nanotv-api.your-subdomain.workers.dev)
+NANO_BACKEND_URL=

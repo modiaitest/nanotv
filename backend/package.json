@@ -1,0 +1,13 @@
+{
+  "name": "nanotv-api-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Edge-cached YouTube Data API v3 proxy for NanoTV Android TV app (keeps API keys off client APKs)",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^3.99.0"
+  }
+}

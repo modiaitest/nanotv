@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.NanoTV" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#0E1726</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+</resources>

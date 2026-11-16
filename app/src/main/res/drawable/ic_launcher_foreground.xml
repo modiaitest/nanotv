@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Stylized geometric 'N' prism emblem (original NanoTV brand mark) -->
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M33,74V34h10l18,24V34h10v40H61L43,50v24z" />
+    <!-- Violet spark dot -->
+    <path
+        android:fillColor="#7C4DFF"
+        android:pathData="M75,30m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+</vector>

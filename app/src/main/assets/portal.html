@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>NanoTV — Parent Curation Portal</title>
+<style>
+  :root {
+    --bg: #0E1726;
+    --card: #16243B;
+    --cyan: #00E5FF;
+    --mint: #00E676;
+    --amber: #FFB300;
+    --violet: #7C4DFF;
+    --danger: #FF5252;
+    --text: #F5F9FF;
+    --muted: #9CB2D4;
+  }
+  * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  body { margin: 0; background: var(--bg); color: var(--text); padding: 16px; max-width: 720px; margin-inline: auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; color: var(--cyan); }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 16px; }
+  .card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.08); }
+  .card h2 { font-size: 16px; margin: 0 0 10px; color: var(--amber); }
+  input[type="text"], input[type="password"] {
+    width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.16);
+    background: #0A111D; color: #fff; font-size: 15px; margin-bottom: 10px; outline: none;
+  }
+  input:focus { border-color: var(--cyan); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  button {
+    border: none; border-radius: 12px; padding: 11px 16px; font-weight: 700; font-size: 14px; cursor: pointer;
+  }
+  button:disabled { opacity: 0.5; }
+  .btn-primary { background: var(--cyan); color: #08101C; flex: 1; }
+  .btn-mint { background: var(--mint); color: #08101C; }
+  .btn-ghost { background: rgba(255,255,255,0.1); color: #fff; padding: 7px 12px; font-size: 12px; }
+  .btn-danger { background: rgba(255,82,82,0.18); color: var(--danger); padding: 7px 12px; font-size: 12px; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-top: 8px; }
+  .chip {
+    background: rgba(0,229,255,0.14); color: var(--cyan); border: 1px solid rgba(0,229,255,0.35);
+    border-radius: 99px; padding: 7px 13px; font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer;
+  }
+  .toast { padding: 12px 14px; border-radius: 12px; margin-bottom: 14px; font-size: 14px; font-weight: 600; display: none; }
+  .toast.ok { display: block; background: rgba(0,230,118,0.18); color: var(--mint); border: 1px solid var(--mint); }
+  .toast.err { display: block; background: rgba(255,82,82,0.18); color: #ff8a80; border: 1px solid var(--danger); }
+  .item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .item:last-child { border-bottom: none; }
+  .badge { display: inline-block; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 6px; background: rgba(255,179,0,0.2); color: var(--amber); margin-right: 6px; }
+  .vid-item { display: flex; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .vid-item img { width: 96px; height: 54px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+  .vid-meta { flex: 1; min-width: 0; }
+  .vid-title { font-size: 13px; font-weight: 700; line-height: 1.3; margin-bottom: 3px; }
+  .vid-sub { font-size: 11px; color: var(--muted); }
+  .footer { text-align: center; font-size: 11px; color: var(--muted); margin-top: 20px; line-height: 1.6; }
+  .footer a { color: var(--cyan); text-decoration: none; }
+</style>
+</head>
+<body>
+  <h1>NanoTV Parent Manager</h1>
+  <div class="sub">Parent-curated TV library • Powered by YouTube • Shorts disabled</div>
+
+  <div id="toast" class="toast"></div>
+
+  <div id="pinCard" class="card">
+    <h2>🔒 Parent PIN Verification</h2>
+    <input id="pinInput" type="password" inputmode="numeric" maxlength="4" placeholder="Enter your 4-digit Parent PIN set on TV" />
+    <div class="row">
+      <button class="btn-primary" onclick="unlockPortal()">Unlock Parent Controls</button>
+    </div>
+  </div>
+
+  <div id="mainPortal" style="display:none;">
+    <div class="card">
+      <h2>➕ Add Video, Playlist, or @Channel</h2>
+      <input id="addInput" type="text" placeholder="Paste YouTube link or @Channel (e.g. @SciShowKids)" />
+      <input id="shelfInput" type="text" placeholder="Optional shelf title (e.g. Science, Drawing)" />
+      <div class="row">
+        <button id="addBtn" class="btn-primary" onclick="addInput()">Add to NanoTV</button>
+      </div>
+      <div style="margin-top:12px; font-size:12px; color:var(--muted);">Quick-Add Educational Channels:</div>
+      <div class="chips">
+        <span class="chip" onclick="quickAdd('@SciShowKids', 'SciShow Kids')">+ SciShow Kids</span>
+        <span class="chip" onclick="quickAdd('@Peekaboo_Kidz', 'Peekaboo Kidz')">+ Dr. Binocs</span>
+        <span class="chip" onclick="quickAdd('@NatGeoKids', 'Nat Geo Kids')">+ Nat Geo Kids</span>
+        <span class="chip" onclick="quickAdd('@ArtforKidsHub', 'Art for Kids Hub')">+ Art for Kids Hub</span>
+        <span class="chip" onclick="quickAdd('@MarkRober', 'Mark Rober')">+ Mark Rober</span>
+        <span class="chip" onclick="quickAdd('@TEDEd', 'TED-Ed')">+ TED-Ed</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <h2 style="margin:0;">📚 Active Shelves & Channels</h2>
+        <button class="btn-ghost" onclick="syncNow()">🔄 Refresh TV</button>
+      </div>
+      <div id="sourcesList">Loading...</div>
+    </div>
+
+    <div class="card">
+      <h2>🎬 Approved Videos (<span id="vidCount">0</span>)</h2>
+      <input id="filterInput" type="text" placeholder="Filter videos on TV..." oninput="renderVideos()" />
+      <div id="videosList"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Powered by YouTube API Services.<br>
+    <a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener">YouTube Terms of Service</a> •
+    <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>
+  </div>
+
+<script>
+let parentPin = sessionStorage.getItem('nanotv_pin') || '';
+let cachedVideos = [];
+
+function showToast(msg, ok=true) {
+  const el = document.getElementById('toast');
+  el.className = 'toast ' + (ok ? 'ok' : 'err');
+  el.textContent = msg;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function unlockPortal() {
+  const pin = document.getElementById('pinInput').value.trim();
+  const r = await fetch('/api/verify-pin', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ pin })
+  });
+  const res = await r.json();
+  if (res.ok) {
+    parentPin = pin;
+    sessionStorage.setItem('nanotv_pin', pin);
+    document.getElementById('pinCard').style.display = 'none';
+    document.getElementById('mainPortal').style.display = 'block';
+    loadState();
+  } else {
+    showToast('Incorrect Parent PIN. Check the 4-digit PIN set on your TV.', false);
+  }
+}
+
+async function loadState() {
+  const r = await fetch('/api/state', { headers: { 'X-Parent-Pin': parentPin } });
+  if (r.status === 401) {
+    document.getElementById('pinCard').style.display = 'block';
+    document.getElementById('mainPortal').style.display = 'none';
+    return;
+  }
+  const data = await r.json();
+  document.getElementById('pinCard').style.display = 'none';
+  document.getElementById('mainPortal').style.display = 'block';
+  document.getElementById('vidCount').textContent = data.totalApprovedVideos;
+  cachedVideos = data.recentVideos || [];
+
+  const sEl = document.getElementById('sourcesList');
+  if (!data.sources || data.sources.length === 0) {
+    sEl.innerHTML = '<div style="color:var(--muted);font-size:13px;">No active shelves yet. Add one above!</div>';
+  } else {
+    sEl.innerHTML = data.sources.map(s => `
+      <div class="item">
+        <div>
+          <span class="badge">${escapeHtml(s.sourceType)}</span>
+          <strong style="font-size:14px;">${escapeHtml(s.shelfTitle)}</strong>
+        </div>
+        <button class="btn-danger" onclick="removeSource('${escapeJs(s.sourceId)}')">Remove</button>
+      </div>
+    `).join('');
+  }
+  renderVideos();
+}
+
+function renderVideos() {
+  const q = (document.getElementById('filterInput').value || '').toLowerCase();
+  const list = cachedVideos.filter(v => !q || v.title.toLowerCase().includes(q) || v.channelTitle.toLowerCase().includes(q));
+  const vEl = document.getElementById('videosList');
+  if (list.length === 0) {
+    vEl.innerHTML = '<div style="color:var(--muted);font-size:13px;">No matching videos.</div>';
+    return;
+  }
+  vEl.innerHTML = list.slice(0, 40).map(v => `
+    <div class="vid-item">
+      <img src="${escapeHtml(v.thumbnailUrl)}" alt="" />
+      <div class="vid-meta">
+        <div class="vid-title">${escapeHtml(v.title)}</div>
+        <div class="vid-sub">${escapeHtml(v.channelTitle)}</div>
+      </div>
+      <button class="btn-danger" onclick="hideVideo('${escapeJs(v.videoId)}')">Hide</button>
+    </div>
+  `).join('');
+}
+
+async function addInput() {
+  const input = document.getElementById('addInput').value.trim();
+  const shelfTitle = document.getElementById('shelfInput').value.trim();
+  if (!input) return showToast('Paste a link or @handle first!', false);
+  const btn = document.getElementById('addBtn');
+  btn.disabled = true; btn.textContent = 'Adding...';
+  const r = await fetch('/api/add', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-Parent-Pin': parentPin},
+    body: JSON.stringify({ input, shelfTitle })
+  });
+  const res = await r.json();
+  showToast(res.message, res.ok);
+  if (res.ok) {
+    document.getElementById('addInput').value = '';
+    await loadState();
+  }
+  btn.disabled = false; btn.textContent = 'Add to NanoTV';
+}
+
+async function quickAdd(input, shelfTitle) {
+  showToast('Adding ' + shelfTitle + '...', true);
+  const r = await fetch('/api/add', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-Parent-Pin': parentPin},
+    body: JSON.stringify({ input, shelfTitle })
+  });
+  const res = await r.json();
+  showToast(res.message, res.ok);
+  await loadState();
+}
+
+async function removeSource(sourceId) {
+  await fetch('/api/remove', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-Parent-Pin': parentPin},
+    body: JSON.stringify({ sourceId })
+  });
+  await loadState();
+}
+
+async function hideVideo(videoId) {
+  await fetch('/api/hide-video', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-Parent-Pin': parentPin},
+    body: JSON.stringify({ videoId })
+  });
+  showToast('Hidden video on TV!', true);
+  await loadState();
+}
+
+async function syncNow() {
+  showToast('Refreshing shelves...', true);
+  const r = await fetch('/api/sync', { method: 'POST', headers: {'X-Parent-Pin': parentPin} });
+  const res = await r.json();
+  showToast(res.message, res.ok);
+  await loadState();
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeJs(s) {
+  return String(s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
+if (parentPin) loadState();
+</script>
+</body>
+</html>

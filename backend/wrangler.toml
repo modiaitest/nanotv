@@ -1,0 +1,7 @@
+name = "nanotv-api-proxy"
+main = "src/worker.js"
+compatibility_date = "2025-01-01"
+
+# Store your YouTube Data API v3 key securely on Cloudflare (never in git or APK):
+#   npx wrangler secret put YOUTUBE_API_KEY
+#   npx wrangler deploy
